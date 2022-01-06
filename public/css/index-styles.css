@@ -30,6 +30,7 @@ h1 {
 button {
   border: none;
   cursor: pointer;
+  background: none;
 }
 i {
   color: red;
