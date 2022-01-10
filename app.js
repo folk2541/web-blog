@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
@@ -23,7 +24,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 mongoose.connect(
-  "mongodb+srv://folk2541:019968078@cluster0.bn4cc.mongodb.net/blogweb?retryWrites=true&w=majority",
+  "mongodb+srv://folk2541:"+process.env.DB+"@cluster0.bn4cc.mongodb.net/blogweb?retryWrites=true&w=majority",
   {
     useNewUrlParser: true,
   }
