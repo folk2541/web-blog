@@ -79,7 +79,7 @@ i {
 @media only screen and (max-width: 450px) {
   .postby {
     position: absolute;
-    bottom: -15px;
+    bottom: -30px;
     left: 75%;
   }
 }
