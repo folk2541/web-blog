@@ -34,6 +34,10 @@ h1 {
   color: white;
   text-decoration: none;
 }
+.login a {
+  color: white;
+  text-decoration: none;
+}
 .home {
   margin-left: auto;
 }
@@ -45,4 +49,24 @@ h1 {
 .container {
   width: 80%;
   margin: 24px auto;
+  position: relative;
+}
+.login {
+  background-color: #516beb;
+  padding: 5px 15px;
+  border-radius: 9px;
+}
+.postby {
+  position: absolute;
+  bottom: -15px;
+  left: 25%;
+  font-size: 14px;
+  color: #777;
+}
+@media only screen and (max-width: 450px) {
+  .postby {
+    position: absolute;
+    bottom: -15px;
+    left: 75%;
+  }
 }

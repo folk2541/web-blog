@@ -37,14 +37,14 @@ i {
   margin-left: 24px;
   font-size: 16px;
 }
-.create a {
+.login a {
   color: white;
   text-decoration: none;
 }
 .home {
   margin-left: auto;
 }
-.create {
+.login {
   background-color: #516beb;
   padding: 5px 15px;
   border-radius: 9px;
@@ -62,17 +62,24 @@ i {
 }
 .post {
   margin-bottom: 24px;
+  position: relative;
 }
 .title {
   display: flex;
   align-items: center;
 }
-/* @media only screen and (max-width: 400px) {
-  body {
-    background-color: red;
+
+.postby {
+  position: absolute;
+  bottom: -15px;
+  left: 25%;
+  font-size: 14px;
+  color: #777;
+}
+@media only screen and (max-width: 450px) {
+  .postby {
+    position: absolute;
+    bottom: -15px;
+    left: 75%;
   }
-  .container {
-    width: 80%;
-    max-width: 200px;
-  }
-} */
+}

@@ -5,7 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Blog Website</title>
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+    <link
+      rel="stylesheet"
+      href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+      integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p"
+      crossorigin="anonymous"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -19,25 +24,26 @@
       <ul>
         <li class="blog">Blog Website</li>
         <li class="home">Home</li>
-        <li class="create"><a href="/create">Create</a></li>
+        <li class="login"><a href="/login">Login</a></li>
       </ul>
     </nav>
     <div class="container">
-      <%result.forEach(function(item){%>
+      <%allPost.forEach(function(item){%>
+
       <div class="post">
         <div class="title">
-          <h1><%= item.title %></h1>
-            <form action="/delete" method="post">
-              <button type="submit" name="delete" value="<%= item.title %>"><i class="fas fa-trash-alt"></i></button>
-            </form>
+          <h1><%= item.reqTitle %></h1>
         </div>
-        <p>
-          <%= item.content.substring(0,50)%>...<a class="more" href="/<%=item.title%>">more</a>
+        <p class="content">
+          <%= item.reqContent.substring(0,50)%>...<a
+            class="more"
+            href="/posts/<%=item.reqTitle%>"
+            >more</a
+          >
         </p>
+        <p class="postby">post by <%= item.author%></p>
       </div>
       <%})%>
     </div>
   </body>
 </html>
-
-

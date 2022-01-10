@@ -23,12 +23,24 @@ input {
 .home {
   margin-left: auto;
 }
+.login a {
+  color: white;
+  text-decoration: none;
+}
 .home a {
   color: white;
   text-decoration: none;
 }
-.create {
-  background-color: #516beb;
+.create a {
+  color: white;
+  text-decoration: none;
+}
+.Mypost a {
+  color: white;
+  text-decoration: none;
+}
+.name {
+  background-color: #7c99ac;
   padding: 5px 15px;
   border-radius: 9px;
 }
@@ -47,9 +59,24 @@ input {
   color: white;
   cursor: pointer;
 }
-
+.login {
+  background-color: #516beb;
+  padding: 5px 15px;
+  border-radius: 9px;
+}
 input,
 textarea {
   width: 40vw;
   min-width: 200px;
+}
+@media only screen and (max-width: 450px) {
+  nav {
+    font-size: 10px;
+  }
+  .blog {
+    font-size: 12px;
+  }
+  ul {
+    gap: 13px;
+  }
 }

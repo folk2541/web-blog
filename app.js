@@ -1,77 +1,301 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
-
+const mongoose = require("mongoose");
+const session = require("express-session");
+const passport = require("passport");
+const passportLocalMongoose = require("passport-local-mongoose");
+const { all } = require("express/lib/application");
+const flash = require("connect-flash");
 const app = express();
 
-app.set("view engine", "ejs");
-
-app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-const mongoose = require("mongoose");
-mongoose.connect(
-  "mongodb+srv://folk2541:019968078@cluster0.bn4cc.mongodb.net/blogWeb?retryWrites=true&w=majority"
+app.set("view engine", "ejs");
+app.use(flash());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  session({
+    secret: "Our little secretasdsa",
+    resave: false,
+    saveUninitialized: false,
+  })
 );
-const blogSchema = new mongoose.Schema({
-  title: String,
-  content: String,
-});
-const Blog = mongoose.model("Blog", blogSchema);
+app.use(passport.initialize());
+app.use(passport.session());
+mongoose.connect(
+  "mongodb+srv://folk2541:019968078@cluster0.bn4cc.mongodb.net/blogweb?retryWrites=true&w=majority",
+  {
+    useNewUrlParser: true,
+  }
+);
 
+const userSchema = new mongoose.Schema({
+  email: String,
+  password: String,
+  name: String,
+  post: Array,
+});
+userSchema.plugin(passportLocalMongoose);
+
+const User = new mongoose.model("User", userSchema);
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 app.get("/favicon.ico", (req, res) => res.status(204));
 
 app.get("/", function (req, res) {
-  Blog.find(function (err, result) {
+  const allPost = [];
+  var author = "";
+  User.find(function (err, result) {
     if (err) {
       console.log(err);
     } else {
-      res.render("index", { result: result });
+      User.find(function (err, result) {
+        result.forEach((element) => {
+          author = element.name;
+          const post = element.post;
+
+          post.forEach((element) => {
+            elements = { ...element, author };
+            allPost.push(elements);
+          });
+        });
+        res.render("index", { allPost: allPost });
+      });
     }
   });
 });
 app.get("/create", function (req, res) {
-  res.render("create");
+  if (req.isAuthenticated()) {
+    User.findOne({ username: req.user.username }, function (err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        res.render("create", { name: result.name });
+      }
+    });
+  } else {
+    res.redirect("/login");
+  }
+});
+app.get("/login", function (req, res) {
+  var message = req.flash("error");
+  res.render("login", { message: message });
+});
+app.get("/register", function (req, res) {
+  res.render("register");
+});
+app.get("/homesecret", function (req, res) {
+  const allPost = [];
+  var name = "";
+  if (req.isAuthenticated()) {
+    User.findOne({ username: req.user.username }, function (err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        name = result.name;
+        User.find(function (err, result) {
+          result.forEach((element) => {
+            author = element.name;
+            const post = element.post;
+
+            post.forEach((element) => {
+              var elements = { ...element, author };
+              allPost.push(elements);
+            });
+          });
+          res.render("homesecret", { name: name, allPost: allPost });
+        });
+      }
+    });
+  } else {
+    res.redirect("/login");
+  }
 });
 
-app.get("/:blogTitle", function (req, res) {
-  const blogTitle = req.params.blogTitle;
-  console.log(blogTitle);
-  Blog.findOne({ title: blogTitle }, function (err, result) {
+app.get("/mypost", function (req, res) {
+  var name = "";
+  var postname = "";
+  if (req.isAuthenticated()) {
+    User.findOne({ username: req.user.username }, function (err, result) {
+      if (err) {
+        console.log(err);
+      } else {
+        const mypost = result.post;
+        res.render("mypost", { name: result.name, mypost: mypost });
+      }
+    });
+  } else {
+    res.redirect("/login");
+  }
+});
+app.get("/logout", function (req, res) {
+  req.logout();
+  res.redirect("/");
+});
+app.get("/posts/:blogTitle", function (req, res) {
+  if (req.isAuthenticated()) {
+    var name = "";
+    const blogTitle = req.params.blogTitle;
+    User.findOne(
+      { post: { $elemMatch: { reqTitle: blogTitle } } },
+      function (err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          name = result.name;
+          const post = result.post;
+
+          post.forEach((element) => {
+            if (element.reqTitle === blogTitle) {
+              const resultPost = {
+                title: element.reqTitle,
+                content: element.reqContent,
+              };
+              User.findOne(
+                { username: req.user.username },
+                function (err, result) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    const mypost = result.post;
+                    res.render("postsecret", {
+                      result: resultPost,
+                      name: result.name,
+                      postname: name,
+                    });
+                  }
+                }
+              );
+            }
+          });
+        }
+      }
+    );
+  } else {
+    var name = "";
+    const blogTitle = req.params.blogTitle;
+    User.findOne(
+      { post: { $elemMatch: { reqTitle: blogTitle } } },
+      function (err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          name = result.name;
+          const post = result.post;
+
+          post.forEach((element) => {
+            if (element.reqTitle === blogTitle) {
+              const resultPost = {
+                title: element.reqTitle,
+                content: element.reqContent,
+              };
+
+              res.render("post", { result: resultPost, name: name });
+            }
+          });
+        }
+      }
+    );
+  }
+});
+
+app.post("/login", function (req, res) {
+  const user = new User({
+    username: req.body.username,
+    password: req.body.password,
+  });
+  req.login(user, function (err) {
     if (err) {
       console.log(err);
     } else {
-      // console.log(result);
-      res.render("post", { result: result });
+      passport.authenticate("local", {
+        failureRedirect: "/login",
+        failureFlash: true,
+      })(req, res, function () {
+        if (!req.isAuthenticated()) {
+          res.redirect("/");
+        } else {
+          res.redirect("/homesecret");
+        }
+      });
     }
   });
+});
+app.post("/register", function (req, res) {
+  User.register(
+    { username: req.body.username },
+    req.body.password,
+    function (err, user) {
+      if (err) {
+        console.log(err);
+        res.redirect("/register");
+      } else {
+        passport.authenticate("local", {
+          failureRedirect: "/register",
+          failureFlash: true,
+        })(req, res, function () {
+          const name = req.body.name;
+          User.findOneAndUpdate(
+            { username: req.body.username },
+            { name: name },
+            function (err, result) {
+              if (err) {
+                console.log(err);
+                res.redirect("/register");
+              }
+            }
+          );
+          res.redirect("/homesecret");
+        });
+      }
+    }
+  );
 });
 
 app.post("/create", function (req, res) {
   const reqTitle = req.body.title;
   const reqContent = req.body.content;
-  const blog = new Blog({
-    title: reqTitle,
-    content: reqContent,
-  });
-  blog.save(function () {
-    res.redirect("/");
-  });
+  const posts = { reqTitle, reqContent };
+
+  if (req.isAuthenticated()) {
+    User.findOneAndUpdate(
+      { username: req.user.username },
+      { $push: { post: posts } },
+      function (err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+        }
+      }
+    );
+    res.redirect("/homesecret");
+  } else {
+    res.redirect("/login");
+  }
 });
 app.post("/delete", function (req, res) {
   titleDelete = req.body.delete;
-  Blog.findOneAndRemove({ title: titleDelete }, function (err, result) {
-    if (err) {
-      console.log(err);
-    } else {
-      res.redirect("/");
-    }
-  });
+
+  if (req.isAuthenticated()) {
+    User.findOneAndUpdate(
+      { username: req.user.username },
+      { $pull: { post: { reqTitle: titleDelete } } },
+
+      function (err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          res.redirect("/mypost");
+        }
+      }
+    );
+  } else {
+    res.redirect("/login");
+  }
 });
 let port = process.env.PORT;
 if (port == null || port == "") {
   port = 3000;
 }
 app.listen(port);
-// app.listen(3000, function () {
-//   console.log("Server started on port 3000");
-// });
