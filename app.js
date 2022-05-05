@@ -45,27 +45,23 @@ passport.deserializeUser(User.deserializeUser());
 app.get("/favicon.ico", (req, res) => res.status(204));
 
 app.get("/", function (req, res) {
-  const allPost = [];
-  var author = "";
-  User.find(function (err, result) {
-    if (err) {
-      console.log(err);
-    } else {
-      User.find(function (err, result) {
-        result.forEach((element) => {
-          author = element.name;
-          const post = element.post;
+  let allPost = [];
 
-          post.forEach((element) => {
-            elements = { ...element, author };
-            allPost.push(elements);
-          });
-        });
-        res.render("index", { allPost: allPost });
+  User.find(function (err, result) {
+    result.forEach((element) => {
+      let author = element.name;
+      let post = element.post;
+
+      post.forEach((element) => {
+        const elements = { ...element, author };
+
+        allPost.push(elements);
       });
-    }
+    });
+    res.render("index", { allPost: allPost });
   });
 });
+
 app.get("/create", function (req, res) {
   if (req.isAuthenticated()) {
     User.findOne({ username: req.user.username }, function (err, result) {
@@ -80,7 +76,7 @@ app.get("/create", function (req, res) {
   }
 });
 app.get("/login", function (req, res) {
-  var message = req.flash("error");
+  let message = req.flash("error");
   res.render("login", { message: message });
 });
 app.get("/register", function (req, res) {
@@ -88,20 +84,20 @@ app.get("/register", function (req, res) {
 });
 app.get("/homesecret", function (req, res) {
   const allPost = [];
-  var name = "";
+
   if (req.isAuthenticated()) {
     User.findOne({ username: req.user.username }, function (err, result) {
       if (err) {
         console.log(err);
       } else {
-        name = result.name;
+        let name = result.name;
         User.find(function (err, result) {
           result.forEach((element) => {
-            author = element.name;
-            const post = element.post;
+            let author = element.name;
+            let post = element.post;
 
             post.forEach((element) => {
-              var elements = { ...element, author };
+              let elements = { ...element, author };
               allPost.push(elements);
             });
           });
@@ -115,14 +111,12 @@ app.get("/homesecret", function (req, res) {
 });
 
 app.get("/mypost", function (req, res) {
-  var name = "";
-  var postname = "";
   if (req.isAuthenticated()) {
     User.findOne({ username: req.user.username }, function (err, result) {
       if (err) {
         console.log(err);
       } else {
-        const mypost = result.post;
+        let mypost = result.post;
         res.render("mypost", { name: result.name, mypost: mypost });
       }
     });
@@ -136,7 +130,6 @@ app.get("/logout", function (req, res) {
 });
 app.get("/posts/:blogTitle", function (req, res) {
   if (req.isAuthenticated()) {
-    var name = "";
     const blogTitle = req.params.blogTitle;
     User.findOne(
       { post: { $elemMatch: { reqTitle: blogTitle } } },
@@ -144,7 +137,7 @@ app.get("/posts/:blogTitle", function (req, res) {
         if (err) {
           console.log(err);
         } else {
-          name = result.name;
+          let name = result.name;
           const post = result.post;
 
           post.forEach((element) => {
@@ -215,7 +208,7 @@ app.post("/login", function (req, res) {
         failureFlash: true,
       })(req, res, function () {
         if (!req.isAuthenticated()) {
-          res.redirect("/");
+          res.redirect("/login");
         } else {
           res.redirect("/homesecret");
         }
@@ -266,7 +259,6 @@ app.post("/create", function (req, res) {
       function (err, result) {
         if (err) {
           console.log(err);
-        } else {
         }
       }
     );
@@ -300,3 +292,4 @@ if (port == null || port == "") {
   port = 3000;
 }
 app.listen(port);
+
